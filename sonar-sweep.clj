@@ -12,5 +12,5 @@
 (def depths
   (into [] (map #(Integer. %)) (line-seq (java.io.BufferedReader. *in*))))
 
-(println (a depths))
-(println (b depths))
+(println "Part A:" (a depths))
+(println "Part B:" (b depths))
