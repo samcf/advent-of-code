@@ -9,18 +9,16 @@
    unmarked numbers multiplied by the number that was called when the board
    was completed."
   [boards xs]
-  (reduce
-   (fn [totals board]
-     (apply assoc totals
-            (loop [prev 0 [x & xs] xs]
-              (if-let [index (board x)]
-                (let [next (bit-or prev (bit-shift-left 1 (- 24 index)))]
-                  (if (some #(= (bit-and next %) %) masks)
-                    [(+ (count xs) 1)
-                     (->> (intersection (set xs) (set (keys board))) (reduce +) (* x))]
-                    (recur next xs)))
-                (recur prev xs)))))
-   (sorted-map) boards))
+  (into (sorted-map)
+        (map (fn [board]
+               (loop [prev 0 [x & xs] xs]
+                 (if-let [index (board x)]
+                   (let [next (bit-or prev (bit-shift-left 1 (- 24 index)))]
+                     (if (some #(= (bit-and next %) %) masks)
+                       [(+ (count xs) 1)
+                        (->> (intersection (set xs) (set (keys board))) (reduce +) (* x))]
+                       (recur next xs)))
+                   (recur prev xs))))) boards))
 
 (def parse-xf
   (comp (filter seq)
