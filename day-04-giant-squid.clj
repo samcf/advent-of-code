@@ -14,20 +14,18 @@
 (defn score-kv [[ks xs x]]
   [(count xs) (* (reduce + (intersection (set xs) (set ks))) x)])
 
-(def parse-xf
-  (comp (filter seq)
-        (map triml)
-        (map (fn [line] (split line #"\s+")))
-        (partition-all 5)
-        (map flatten)
-        (map (fn [xs] (map #(Integer. %) xs)))
-        (map (fn [xs] (map-indexed (comp vec rseq vector) xs)))
-        (map (partial into {}))))
-
-(let [[xs & rest] (into [] (line-seq (java.io.BufferedReader. *in*)))
-      boards      (into [] parse-xf rest)
-      digits      (map #(Integer. %) (split xs #","))
-      scores      (into (sorted-map) (comp (map (partial play digits)) (map score-kv)) boards)
-      values      (into [] (map val) scores)]
-  (println "Part A:" (peek values))
-  (println "Part B:" (first values)))
+(let [lines (line-seq (java.io.BufferedReader. *in*))
+      drawn (map #(Integer. %) (split (first lines) #","))
+      score (into (sorted-map)
+                  (comp (filter seq)
+                        (map triml)
+                        (map (fn [line] (split line #"\s+")))
+                        (partition-all 5)
+                        (map flatten)
+                        (map (fn [xs] (map #(Integer. %) xs)))
+                        (map (fn [xs] (map-indexed (comp vec rseq vector) xs)))
+                        (map (fn [xs] (into {} xs)))
+                        (map (fn [board] (play drawn board)))
+                        (map score-kv)) (rest lines))]
+  (println "Part A:" (val (last score)))
+  (println "Part B:" (val (first score))))
