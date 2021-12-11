@@ -11,14 +11,15 @@
   [boards xs]
   (into (sorted-map)
         (map (fn [board]
-               (loop [prev 0 [x & xs] xs]
-                 (if-let [index (board x)]
-                   (let [next (bit-or prev (bit-shift-left 1 (- 24 index)))]
-                     (if (some #(= (bit-and next %) %) masks)
-                       [(+ (count xs) 1)
-                        (->> (intersection (set xs) (set (keys board))) (reduce +) (* x))]
-                       (recur next xs)))
-                   (recur prev xs))))) boards))
+               (let [vs (set (keys board))]
+                 (loop [prev 0 [x & xs] xs]
+                   (if-let [index (board x)]
+                     (let [next (bit-or prev (bit-shift-left 1 (- 24 index)))]
+                       (if (some #(= (bit-and next %) %) masks)
+                         [(+ (count xs) 1)
+                          (->> (intersection (set xs) vs) (reduce +) (* x))]
+                         (recur next xs)))
+                     (recur prev xs)))))) boards))
 
 (def parse-xf
   (comp (filter seq)
