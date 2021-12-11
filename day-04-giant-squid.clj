@@ -5,25 +5,26 @@
 (def masks [0x1F00000 0xF8000 0x7C00 0x3E0 0x1F 0x1084210 0x842108 0x421084 0x210842 0x108421])
 
 (defn scores
-  "Returns a sequence of bingo board scores ordered from last to
-   complete to first."
+  "Returns a sorted map whose keys are scores and whose values are the sum of
+   unmarked numbers multiplied by the number that was called when the board
+   was completed."
   [boards xs]
-  (->> (map
-        (fn [board]
-          (reduce
-           (fn [[prev xs] x]
-             (if-let [index (get board x)]
-               (let [mask (bit-shift-left 1 (- 24 index))
-                     next (bit-or prev mask)]
-                 (if (some #(= (bit-and next %) %) masks)
-                   (let [unmarked (intersection (set (keys board)) (set (rest xs)))]
-                     (reduced [(count xs) (reduce + unmarked) x]))
-                   [next (rest xs)]))
-               [prev (rest xs)]))
-           [0 xs] xs)) boards)
-       (sort-by first)
-       (map (juxt second last))
-       (map (partial reduce *))))
+  (reduce (fn [scores board]
+            (->> (reduce (fn [[prev xs] x]
+                           (if-let [index (board x)]
+                             (let [next (bit-or prev (bit-shift-left 1 (- 24 index)))]
+                               (comment "Determine if this board is ")
+                               (if (some #(= (bit-and next %) %) masks)
+                                 (reduced [(count xs)
+                                           (->> (set (rest xs))
+                                                (intersection (set (keys board)))
+                                                (reduce +)
+                                                (* x))])
+                                 [next (rest xs)]))
+                             [prev (rest xs)]))
+                         [0 xs] xs)
+                 (apply assoc scores)))
+          (sorted-map) boards))
 
 (def parse-xf
   (comp (filter seq)
@@ -40,5 +41,5 @@
     [(into [] parse-xf bs) (map #(Integer. %) (split xs #","))]))
 
 (let [scored (apply scores input)]
-  (println "Part A:" (last scored))
-  (println "Part B:" (first scored)))
+  (println "Part A:" (val (last scored)))
+  (println "Part B:" (val (first scored))))
