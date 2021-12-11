@@ -9,21 +9,21 @@
    unmarked numbers multiplied by the number that was called when the board
    was completed."
   [boards xs]
-  (reduce (fn [scores board]
-            (->> (reduce (fn [[prev xs] x]
-                           (if-let [index (board x)]
-                             (let [next (bit-or prev (bit-shift-left 1 (- 24 index)))]
-                               (if (some #(= (bit-and next %) %) masks)
-                                 (reduced [(count xs)
-                                           (->> (set (rest xs))
-                                                (intersection (set (keys board)))
-                                                (reduce +)
-                                                (* x))])
-                                 [next (rest xs)]))
-                             [prev (rest xs)]))
-                         [0 xs] xs)
-                 (apply assoc scores)))
-          (sorted-map) boards))
+  (reduce
+   (fn [totals board]
+     (apply assoc totals
+            (reduce
+             (fn [[prev xs] x]
+               (if-let [index (board x)]
+                 (let [next (bit-or prev (bit-shift-left 1 (- 24 index)))]
+                   (if (some #(= (bit-and next %) %) masks)
+                     (reduced
+                      [(count xs)
+                       (->> (intersection (set (rest xs)) (set (keys board))) (reduce +) (* x))])
+                     [next (rest xs)]))
+                 [prev (rest xs)]))
+             [0 xs] xs)))
+   (sorted-map) boards))
 
 (def parse-xf
   (comp (filter seq)
