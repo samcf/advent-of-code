@@ -39,6 +39,6 @@
   (let [[xs & bs] (into [] (line-seq (java.io.BufferedReader. *in*)))]
     [(into [] parse-xf bs) (map #(Integer. %) (split xs #","))]))
 
-(let [[boards xs] input]
-  (println "Part A:" (last (scores boards xs)))
-  (println "Part B:" (first (scores boards xs))))
+(let [scored (apply scores input)]
+  (println "Part A:" (last scored))
+  (println "Part B:" (first scored)))
