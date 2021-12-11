@@ -12,17 +12,14 @@
   (reduce
    (fn [totals board]
      (apply assoc totals
-            (reduce
-             (fn [[prev xs] x]
-               (if-let [index (board x)]
-                 (let [next (bit-or prev (bit-shift-left 1 (- 24 index)))]
-                   (if (some #(= (bit-and next %) %) masks)
-                     (reduced
-                      [(count xs)
-                       (->> (intersection (set (rest xs)) (set (keys board))) (reduce +) (* x))])
-                     [next (rest xs)]))
-                 [prev (rest xs)]))
-             [0 xs] xs)))
+            (loop [prev 0 [x & xs] xs]
+              (if-let [index (board x)]
+                (let [next (bit-or prev (bit-shift-left 1 (- 24 index)))]
+                  (if (some #(= (bit-and next %) %) masks)
+                    [(+ (count xs) 1)
+                     (->> (intersection (set xs) (set (keys board))) (reduce +) (* x))]
+                    (recur next xs)))
+                (recur prev xs)))))
    (sorted-map) boards))
 
 (def parse-xf
