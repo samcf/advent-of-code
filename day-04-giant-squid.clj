@@ -13,7 +13,6 @@
             (->> (reduce (fn [[prev xs] x]
                            (if-let [index (board x)]
                              (let [next (bit-or prev (bit-shift-left 1 (- 24 index)))]
-                               (comment "Determine if this board is ")
                                (if (some #(= (bit-and next %) %) masks)
                                  (reduced [(count xs)
                                            (->> (set (rest xs))
