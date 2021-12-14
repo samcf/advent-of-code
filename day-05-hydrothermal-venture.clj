@@ -7,7 +7,7 @@
 (defn points [[ax ay bx by]]
   (cond (= ax bx) (map (fn [v] [ax v]) (spread ay by))
         (= ay by) (map (fn [v] [v ay]) (spread ax bx))
-        :else (apply mapv vector [(spread ax bx) (spread ay by)])))
+        :else (mapv vector (spread ax bx) (spread ay by))))
 
 (defn counts [coll]
   (->> (into [] (comp (map points) cat) coll)
