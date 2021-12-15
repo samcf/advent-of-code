@@ -6,7 +6,7 @@
 (defn fish [init days]
   (->> (range 7 (+ days 1))
        (reduce (fn [m d] (assoc m d (+ (get m (- d 7) 0) (get m (- d 9) 0)))) init)
-       (reduce (fn [t [_ v]] (+ t v)) 0)))
+       (transduce (map val) + 0)))
 
 (let [line (first (line-seq (java.io.BufferedReader. *in*)))
       nums (into [] (map (fn [x] (Integer. x))) (split line #","))

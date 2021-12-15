@@ -1,6 +1,9 @@
 (ns advent
   (:require [clojure.string :refer [split]]))
 
+(defn straight? [[ax ay bx by]]
+  (or (= ax bx) (= ay by)))
+
 (defn spread [src dst]
   (if (> src dst) (range src (- dst 1) -1) (range src (+ dst 1))))
 
@@ -9,15 +12,17 @@
         (= ay by) (map (fn [v] [v ay]) (spread ax bx))
         :else (mapv vector (spread ax bx) (spread ay by))))
 
-(defn counts [coll]
-  (->> (into [] (comp (map points) cat) coll)
+(def dupes-xf (comp (map val) (filter (fn [x] (> x 1))) (map (constantly 1))))
+
+(defn solve [xs]
+  (->> (sequence (comp (map points) cat) xs)
        (frequencies)
-       (reduce (fn [t [_ v]] (if (> v 1) (inc t) t)) 0)))
+       (transduce dupes-xf + 0)))
 
 (def vecs-xf (comp (map (fn [xs] (split xs #","))) cat (map (fn [x] (Integer. x)))))
 (def line-xf (comp (map (fn [ls] (split ls #" -> "))) (map (fn [xs] (into [] vecs-xf xs)))))
 
 (let [lines (line-seq (java.io.BufferedReader. *in*))
       parse (into [] line-xf lines)]
-  (println "Part A:" (counts (filter (fn [[ax ay bx by]] (or (= ax bx) (= ay by))) parse)))
-  (println "Part B:" (counts parse)))
+  (println "Part A:" (solve (filter straight? parse)))
+  (println "Part B:" (solve parse)))
