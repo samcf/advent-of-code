@@ -2,15 +2,16 @@
   (:require [clojure.string :refer [split]]))
 
 (defn cost-a [a b] (Math/abs (- a b)))
-(defn cost-b [a b] (let [n (Math/abs (- a b))] (* (/ n 2) (+ n 1))))
+(defn solve-a [xs]
+  (let [xs (into [] (sort xs)) m (xs (/ (count xs) 2))]
+    (transduce (map (fn [x] (cost-a x m))) + 0 xs)))
 
-(defn solve [xs cost-fn]
-  (->> (into #{} xs)
-       (reduce (fn [c r] (update c r concat (map (partial cost-fn r) xs))) {})
-       (into (sorted-set) (map (fn [[_ xs]] (reduce + 0 xs))))
-       (first) (int)))
+(defn cost-b [a b] (let [n (Math/abs (- a b))] (int (* (/ n 2) (+ n 1)))))
+(defn solve-b [xs]
+  (let [m (int (/ (reduce + xs) (count xs)))]
+    (transduce (map (fn [x] (cost-b x m))) + 0 xs)))
 
 (let [line (first (line-seq (java.io.BufferedReader. *in*)))
       nums (into [] (map (fn [x] (Integer. x)) (split line #",")))]
-  (println "Part A:" (solve nums cost-a))
-  (println "Part B:" (solve nums cost-b)))
+  (println "Part A:" (solve-a nums))
+  (println "Part B:" (solve-b nums)))
