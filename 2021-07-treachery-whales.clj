@@ -1,5 +1,4 @@
-(ns advent
-  (:require [clojure.string :refer [split]]))
+(require '[clojure.string :refer [split]])
 
 (defn cost-a [n] (map (fn [x] (Math/abs (- x n)))))
 (defn solve-a [xs]

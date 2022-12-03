@@ -1,5 +1,3 @@
-(ns advent)
-
 (defn a [coll]
   (reduce (fn [t [a b]] (+ t (if (< a b) 1 0))) 0
           (partition 2 1 coll)))

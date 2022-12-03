@@ -1,5 +1,3 @@
-(ns advent)
-
 (defn a [coll]
   (->> (reduce
         (fn [[h d] [c n]]

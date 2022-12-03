@@ -1,5 +1,4 @@
-(ns advent
-  (:require [clojure.string :refer [split]]))
+(require '[clojure.string :refer [split]])
 
 (defn solve [xs days]
   (->> (range 7 (inc days))

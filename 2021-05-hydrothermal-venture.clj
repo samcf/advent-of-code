@@ -1,5 +1,4 @@
-(ns advent
-  (:require [clojure.string :refer [split]]))
+(require '[clojure.string :refer [split]])
 
 (defn straight? [[ax ay bx by]]
   (or (= ax bx) (= ay by)))

@@ -1,5 +1,4 @@
-(ns advent
-  (:require [clojure.set :refer [intersection]]))
+(require '[clojure.set :refer [intersection]])
 
 (def priority
   (->> (range 1 53)

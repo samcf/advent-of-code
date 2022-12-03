@@ -1,5 +1,3 @@
-(ns advent)
-
 (defn a [coll]
   (->> (apply mapv vector coll)
        (map (fn [x] (reduce (fn [t n] (if (= n \1) (inc t) t)) 0 x)))

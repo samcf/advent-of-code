@@ -1,6 +1,5 @@
-(ns advent
-  (:require [clojure.string :refer [split triml]]
-            [clojure.set :refer [intersection]]))
+(require '[clojure.string :refer [split triml]]
+         '[clojure.set :refer [intersection]])
 
 (def masks [0x1F00000 0xF8000 0x7C00 0x3E0 0x1F 0x1084210 0x842108 0x421084 0x210842 0x108421])
 

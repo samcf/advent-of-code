@@ -1,5 +1,3 @@
-(ns advent)
-
 (let [lns (line-seq (java.io.BufferedReader. *in*))
       sum (into (sorted-set-by >)
                 (comp (map #(if (= % "") 0 (Integer. %)))
