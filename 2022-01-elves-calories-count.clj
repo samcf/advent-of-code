@@ -5,4 +5,4 @@
                       (map #(apply + %)))
                 lns)]
   (println "Part A:" (first sum))
-  (println "Part B:" (apply + (take 3 sum))))
+  (println "Part B:" (transduce (take 3) + sum)))
