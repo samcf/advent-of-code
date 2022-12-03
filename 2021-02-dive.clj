@@ -1,3 +1,5 @@
+(require '[clojure.string :refer [split]])
+
 (defn a [coll]
   (->> (reduce
         (fn [[h d] [c n]]
@@ -19,7 +21,7 @@
 
 (def commands
   (into []
-        (map #(let [[c n] (clojure.string/split % #" ")] [c (Integer. n)]))
+        (map #(let [[c n] (split % #" ")] [c (Integer. n)]))
         (line-seq (java.io.BufferedReader. *in*))))
 
 (println "Part A:" (a commands))
