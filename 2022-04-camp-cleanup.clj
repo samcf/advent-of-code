@@ -1,14 +1,10 @@
 (require '[clojure.string :refer [split]])
 
 (defn superset? [[a b c d]]
-  (or (and (<= a c) (>= b d))
-      (and (<= c a) (>= d b))))
+  (or (<= a c d b) (<= c a b d)))
 
 (defn subset? [[a b c d]]
-  (or (and (>= a c) (<= a d))
-      (and (>= b c) (<= b d))
-      (and (>= c a) (<= c b))
-      (and (>= d a) (<= d b))))
+  (or (<= c a d) (<= c b d) (<= a c b) (<= a d b)))
 
 (let [lns (line-seq (java.io.BufferedReader. *in*))
       xfr (comp (map (fn [ln] (split ln #","))) cat
