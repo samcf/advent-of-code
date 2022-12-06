@@ -1,5 +1,3 @@
-(require '[clojure.string :refer [split]])
-
 (def xf-line-crate
   (comp (map (fn [ln] (str ln " ")))
         (map (fn [ln] (partition 4 ln)))
@@ -11,21 +9,18 @@
         (map vec)))
 
 (def xf-line-move
-  (comp (map (fn [ln] (split ln #" ")))
-        (map (fn [[_ n _ src _ dst]]
-               [(Integer. n)
-                (- (Integer. src) 1)
-                (- (Integer. dst) 1)]))))
+  (comp (map #(re-seq #"\d+" %))
+        (map #(map (fn [x] (Integer. x)) %))
+        (map (fn [[n src dst]] [n (dec src) (dec dst)]))))
 
 (defn move-crates-fn [stack-fn]
-  (fn [r [n s d]]
-    (-> (update r s subvec 0 (- (count (r s)) n))
-        (update d (partial apply conj) (stack-fn (subvec (r s) (- (count (r s)) n)))))))
+  (fn [r [n src dst]]
+    (-> (update r src subvec 0 (- (count (r src)) n))
+        (update dst (partial apply conj) (stack-fn (subvec (r src) (- (count (r src)) n)))))))
 
 (let [lns (line-seq (java.io.BufferedReader. *in*))
       [crt [_ _ & mvs]] (split-at 8 lns)
       crt (->> (sequence xf-line-crate crt) (apply mapv vector) (into [] xf-column))
-      mvs (sequence xf-line-move mvs)
-      res (fn [stack-fn] (reduce (move-crates-fn stack-fn) crt mvs))]
-  (println "Part A:" (transduce (map last) str (res rseq)))
-  (println "Part B:" (transduce (map last) str (res identity))))
+      mvs (sequence xf-line-move mvs)]
+  (println "Part A:" (transduce (map last) str (reduce (move-crates-fn rseq) crt mvs)))
+  (println "Part B:" (transduce (map last) str (reduce (move-crates-fn identity) crt mvs))))
