@@ -15,8 +15,9 @@
 
 (defn move-crates-fn [stack-fn]
   (fn [r [n src dst]]
-    (-> (update r src subvec 0 (- (count (r src)) n))
-        (update dst (partial apply conj) (stack-fn (subvec (r src) (- (count (r src)) n)))))))
+    (let [idx (- (count (r src)) n)]
+      (-> (update r src subvec 0 idx)
+          (update dst into (stack-fn (subvec (r src) idx)))))))
 
 (let [lns (line-seq (java.io.BufferedReader. *in*))
       [crt [_ _ & mvs]] (split-at 8 lns)
