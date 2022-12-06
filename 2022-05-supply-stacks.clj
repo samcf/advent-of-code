@@ -1,7 +1,7 @@
 (def xf-line-crate
-  (comp (map (fn [ln] (str ln " ")))
-        (map (fn [ln] (partition 4 ln)))
-        (map (fn [ln] (map second ln)))))
+  (comp (map #(str % " "))
+        (map #(partition 4 %))
+        (map #(map second %))))
 
 (def xf-column
   (comp (map rseq)
@@ -16,8 +16,7 @@
 (defn move-crates-fn [stack-fn]
   (fn [r [n src dst]]
     (let [idx (- (count (r src)) n)]
-      (-> (update r src subvec 0 idx)
-          (update dst into (stack-fn (subvec (r src) idx)))))))
+      (-> r (update src subvec 0 idx) (update dst into (stack-fn (subvec (r src) idx)))))))
 
 (let [lns (line-seq (java.io.BufferedReader. *in*))
       [crt [_ _ & mvs]] (split-at 8 lns)
