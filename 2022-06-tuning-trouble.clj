@@ -1,5 +1,8 @@
 (defn index-of [s n]
-  (->> (partition n 1 s) (map-indexed (fn [idx part] [idx (set part)])) (filter (fn [[_ s]] (= (count s) n))) (ffirst) (+ n)))
+  (->> (partition n 1 s)
+       (take-while #(< (count (set %)) n))
+       (count)
+       (+ n)))
 
 (let [ln (first (line-seq (java.io.BufferedReader. *in*)))]
   (println "Part A:" (index-of ln 4))
