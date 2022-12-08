@@ -10,12 +10,13 @@
               (paths idx len)) 1 0)))
 
 (defn score-b [xs len]
-  (fn [[idx hgt]] (->> (paths idx len)
-                       (map #(reduce (fn [sum idx]
-                                       (if (<= hgt (second (xs idx)))
-                                         (reduced (inc sum))
-                                         (inc sum))) 0 %))
-                       (apply *))))
+  (fn [[idx hgt]]
+    (->> (paths idx len)
+         (map #(reduce (fn [sum idx]
+                         (if (<= hgt (second (xs idx)))
+                           (reduced (inc sum))
+                           (inc sum))) 0 %))
+         (apply *))))
 
 (def xf-line
   (comp cat
