@@ -26,4 +26,4 @@
       rng (range (count grd))
       xfs (comp (xf-paths len) (xf-heights grd))]
   (println "Part A:" (transduce (comp xfs xf-score-a) + rng))
-  (println "Part B:" (apply max (into [] (comp xfs xf-score-b) rng))))
+  (println "Part B:" (first (into (sorted-set-by >) (comp xfs xf-score-b) rng))))
