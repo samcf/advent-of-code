@@ -1,31 +1,29 @@
-(defn paths [idx len]
-  (list (reverse (range (mod idx len) idx len))
-        (range (inc idx) (+ idx (- len (mod idx len))))
-        (range (+ idx len) (* len len) len)
-        (reverse (range (- idx (mod idx len)) idx))))
+(defn paths [len idx]
+  [(range (inc idx) (+ idx (- len (mod idx len))))
+   (range (+ idx len) (* len len) len)
+   (reverse (range (mod idx len) idx len))
+   (reverse (range (- idx (mod idx len)) idx))])
 
-(defn score-a [xs len]
-  (fn [[idx val]]
-    (if (some (fn [idxs] (every? #(> val (second (xs %))) idxs))
-              (paths idx len)) 1 0)))
+(defn xf-paths [len]
+  (map (juxt identity (partial paths len))))
 
-(defn score-b [xs len]
-  (fn [[idx hgt]]
-    (->> (paths idx len)
-         (map #(reduce (fn [sum idx]
-                         (if (<= hgt (second (xs idx)))
-                           (reduced (inc sum))
-                           (inc sum))) 0 %))
-         (apply *))))
+(defn xf-heights [xs]
+  (map (fn [[idx paths]] (into [(xs idx)] (map #(map xs %) paths)))))
 
-(def xf-line
-  (comp cat
-        (map str)
-        (map #(Integer. %))
-        (map-indexed vector)))
+(def xf-score-a
+  (map (fn [[x & xs]]
+         (if (some (fn [xs] (every? #(> x %) xs)) xs)
+           1 0))))
+
+(def xf-score-b
+  (map (fn [[x & xs]]
+         (->> (map #(reduce (fn [s n] (if (<= x n) (reduced (inc s)) (inc s))) 0 %) xs)
+              (apply *)))))
 
 (let [lns (line-seq (java.io.BufferedReader. *in*))
       len (count (first lns))
-      xs  (into [] xf-line lns)]
-  (println "Part A:" (transduce (map (score-a xs len)) + xs))
-  (println "Part B:" (apply max (map (score-b xs len) xs))))
+      grd (into [] (comp cat (map str) (map #(Integer. %))) lns)
+      rng (range (count grd))
+      xfs (comp (xf-paths len) (xf-heights grd))]
+  (println "Part A:" (transduce (comp xfs xf-score-a) + rng))
+  (println "Part B:" (apply max (into [] (comp xfs xf-score-b) rng))))
