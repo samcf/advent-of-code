@@ -1,14 +1,10 @@
-(defn paths [len idx]
-  [(range (inc idx) (+ idx (- len (mod idx len))))
-   (range (+ idx len) (* len len) len)
-   (reverse (range (mod idx len) idx len))
-   (reverse (range (- idx (mod idx len)) idx))])
-
-(defn xf-paths [len]
-  (map (juxt identity (partial paths len))))
-
-(defn xf-heights [xs]
-  (map (fn [[idx paths]] (into [(xs idx)] (map #(map xs %) paths)))))
+(defn paths
+  ([idx] (paths idx 99))
+  ([idx len]
+   [(range (+ idx len) (* len len) len)
+    (range (- idx len) (- (mod idx len) len) (- len))
+    (range (inc idx) (+ idx (- len (mod idx len))))
+    (range (dec idx) (dec (- idx (mod idx len))) -1)]))
 
 (def xf-score-a
   (map (fn [[x & xs]]
@@ -17,13 +13,15 @@
 
 (def xf-score-b
   (map (fn [[x & xs]]
-         (->> (map #(reduce (fn [s n] (if (<= x n) (reduced (inc s)) (inc s))) 0 %) xs)
-              (apply *)))))
+         (transduce (map #(reduce (fn [s n] (if (<= x n) (reduced (inc s)) (inc s))) 0 %))
+                    * xs))))
 
 (let [lns (line-seq (java.io.BufferedReader. *in*))
-      len (count (first lns))
-      grd (into [] (comp cat (map str) (map #(Integer. %))) lns)
+      grd (into [] (comp cat (map int)) lns)
       rng (range (count grd))
-      xfs (comp (xf-paths len) (xf-heights grd))]
+      xfs (comp (map (juxt identity paths))
+                (map (fn [[idx paths]]
+                       (conj (map #(map grd %) paths)
+                             (grd idx)))))]
   (println "Part A:" (transduce (comp xfs xf-score-a) + rng))
   (println "Part B:" (first (into (sorted-set-by >) (comp xfs xf-score-b) rng))))
