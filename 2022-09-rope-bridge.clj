@@ -22,8 +22,12 @@
                    (recur (loop [knots (assoc knots 0 [(+ ax ox) (+ ay oy)])
                                  idx   1]
                             (if (< idx (count knots))
-                              (recur (update knots idx follow (knots (dec idx)))
-                                     (inc idx))
+                              (let [src (knots idx)
+                                    cmp (knots (dec idx))
+                                    dst (follow src cmp)]
+                                (if (not= src dst)
+                                  (recur (assoc knots idx dst) (inc idx))
+                                  knots))
                               knots))
                           (rest offsets)
                           (conj visited (last knots))))
