@@ -14,7 +14,7 @@
       ins (sequence (map parse-ln) lns)
       res (loop [res [1] reg 1 [[wait change] & ins] ins]
             (if (seq ins)
-              (recur (apply conj res (repeat wait reg))
+              (recur (into res (repeat wait reg))
                      (+ reg change)
                      ins)
               res))]
