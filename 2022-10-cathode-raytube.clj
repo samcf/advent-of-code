@@ -14,7 +14,7 @@
 
 (let [in (line-seq (java.io.BufferedReader. *in*))
       xs (reduce solve [1 1] in)]
-  (println "Part A:" (reduce + (map (fn [x] (* (xs x) x)) [20 60 100 140 180 220])))
+  (println "Part A:" (transduce (map (fn [x] (* (xs x) x))) + [20 60 100 140 180 220]))
   (println "Part B:")
   (println (->> (partition 40 xs)
                 (map #(join "" (sequence render %)))
