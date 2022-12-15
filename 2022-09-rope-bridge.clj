@@ -5,32 +5,26 @@
     #"D (\d+)" :>> (fn [[_ n]] (repeat (Integer. n) [0  1]))
     #"L (\d+)" :>> (fn [[_ n]] (repeat (Integer. n) [-1 0]))))
 
-(defn follow [[ax ay] [bx by]]
+(defn move [[ax ay] [bx by]]
   (if (> (max (Math/abs (- ax bx)) (Math/abs (- ay by))) 1)
     [(+ (Integer/signum (- bx ax)) ax)
      (+ (Integer/signum (- by ay)) ay)]
     [ax ay]))
 
-(let [lines (line-seq (java.io.BufferedReader. *in*))
-      moves (sequence (comp (map parse-ln) cat) lines)
-      solve #(loop [knots   (vec (repeat % [0 0]))
-                    offsets moves
-                    visited #{}]
-               (if (seq offsets)
-                 (let [[ax ay] (first knots)
-                       [ox oy] (first offsets)]
-                   (recur (loop [knots (assoc knots 0 [(+ ax ox) (+ ay oy)])
-                                 idx   1]
-                            (if (< idx (count knots))
-                              (let [src (knots idx)
-                                    cmp (knots (dec idx))
-                                    dst (follow src cmp)]
-                                (if (not= src dst)
-                                  (recur (assoc knots idx dst) (inc idx))
-                                  knots))
-                              knots))
-                          (rest offsets)
-                          (conj visited (last knots))))
-                 (count visited)))]
-  (println "Part A:" (solve 2))
-  (println "Part B:" (solve 10)))
+(defn follow [[[a :as h] [b :as t] & ts]]
+  (if (seq t)
+    (let [c (move b a)]
+      (if (= c b)
+        (conj ts t h)
+        (conj (follow (conj ts (conj t c))) h)))
+    (conj ts h)))
+
+(let [xs (->> (line-seq (java.io.BufferedReader. *in*))
+              (sequence (comp (map parse-ln) cat))
+              (reduce (fn [[[[ax ay] :as h] & t] [ox oy]]
+                        (let [u [(+ ax ox) (+ ay oy)]]
+                          (follow (conj t (conj h u)))))
+                      (repeat 10 (list [0 0])))
+              (into [] (map #(count (distinct %)))))]
+  (println "Part A:" (xs 1))
+  (println "Part B:" (xs 9)))
