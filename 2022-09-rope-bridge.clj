@@ -1,3 +1,5 @@
+(require '[clojure.math :refer [signum]])
+
 (defn parse-ln [ln]
   (condp re-find ln
     #"U (\d+)" :>> (fn [[_ n]] (repeat (Integer. n) [0 -1]))
@@ -6,9 +8,9 @@
     #"L (\d+)" :>> (fn [[_ n]] (repeat (Integer. n) [-1 0]))))
 
 (defn move [[ax ay] [bx by]]
-  (if (> (max (Math/abs (- ax bx)) (Math/abs (- ay by))) 1)
-    [(+ (Integer/signum (- bx ax)) ax)
-     (+ (Integer/signum (- by ay)) ay)]
+  (if (> (max (abs (- ax bx)) (abs (- ay by))) 1)
+    [(+ (signum (- bx ax)) ax)
+     (+ (signum (- by ay)) ay)]
     [ax ay]))
 
 (defn follow [[[a :as h] [b :as t] & ts]]
