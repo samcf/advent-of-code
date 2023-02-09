@@ -2,13 +2,10 @@
 (def match-val #"(\d) (\w+ \w+) bags?(?:,|.)")
 
 (defn parse [ln]
-  (let [[_ color] (re-find match-key ln)]
-    (-> (comp (map rest) (map (fn [[n c]] [c (Integer. n)])) cat)
-        (sequence (re-seq match-val ln))
-        (conj color))))
-
-(defn group [[color & rest]]
-  [color (apply hash-map rest)])
+  (let [[_ color] (re-find match-key ln)
+        xf        (comp (map rest) (map (fn [[n c]] [c (Integer. n)])))
+        xs        (into {} xf (re-seq match-val ln))]
+    [color xs]))
 
 (defn valid? [xs color]
   (or (contains? (xs color) "shiny gold")
@@ -20,8 +17,9 @@
           (xs color)))
 
 (let [in (line-seq (java.io.BufferedReader. *in*))
-      xf (comp (map parse) (map group))
-      xs (into {} xf in)
-      xv (comp (map key) (map (partial valid? xs)) (filter identity))]
-  (println "Part A:" (count (sequence xv xs)))
+      xs (into {} (map parse) in)
+      xf (comp (map key)
+               (map (partial valid? xs))
+               (filter identity))]
+  (println "Part A:" (count (sequence xf xs)))
   (println "Part B:" (bags xs "shiny gold")))
