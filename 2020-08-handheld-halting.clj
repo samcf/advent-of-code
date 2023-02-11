@@ -20,8 +20,7 @@
          tst nil  ;; the index that is currently being tested
          ]
     (if (<= (inc idx) (count xs))
-      (if (vst idx)
-        (recur 0 0 #{} (conj bad tst) nil)
+      (if (not (vst idx))
         (let [[ins val] (xs idx)
               vst       (conj vst idx)
               run       (or (number? tst) (contains? bad idx))]
@@ -31,7 +30,8 @@
             ["jmp" true]  (recur acc         (+ idx val) vst bad tst)
             ["acc" false] (recur (+ acc val) (inc idx)   vst bad tst)
             ["nop" false] (recur acc         (+ idx val) vst bad idx)
-            ["jmp" false] (recur acc         (inc idx)   vst bad idx))))
+            ["jmp" false] (recur acc         (inc idx)   vst bad idx)))
+        (recur 0 0 #{} (conj bad tst) nil))
       acc)))
 
 (let [in (line-seq (java.io.BufferedReader. *in*))
