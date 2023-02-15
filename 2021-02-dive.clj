@@ -1,20 +1,24 @@
 (require '[clojure.string :refer [split]])
 
-(defn dive-a [[h d] [c n]]
-  (case c
-    "forward" [(+ h n) d]
-    "down"    [h (+ d n)]
-    "up"      [h (- d n)]))
+(defn solve-a [[[c v] & t] h d]
+  (if (seq t)
+    (case c
+      "forward" (recur t (+ h v) d)
+      "down"    (recur t h (+ d v))
+      "up"      (recur t h (- d v)))
+    (* h d)))
 
-(defn dive-b [[h d a] [c n]]
-  (case c
-    "forward" [(+ h n) (+ d (* a n)) a]
-    "down"    [h d (+ a n)]
-    "up"      [h d (- a n)]))
+(defn solve-b [[[c v] & t] h d a]
+  (if (seq t)
+    (case c
+      "forward" (recur t (+ h v) (+ d (* a v)) a)
+      "down"    (recur t h d (+ a v))
+      "up"      (recur t h d (- a v)))
+    (* h d)))
 
 (let [in (line-seq (java.io.BufferedReader. *in*))
-      cf (fn [[h d]] (* h d))
       xf (comp (map (fn [s]     (split s #" ")))
-               (map (fn [[c v]] [c (Integer. v)])))]
-  (println "Part A:" (transduce xf (completing dive-a cf) [0 0]   in))
-  (println "Part B:" (transduce xf (completing dive-b cf) [0 0 0] in)))
+               (map (fn [[c v]] [c (Integer. v)])))
+      xs (sequence xf in)]
+  (println "Part A:" (solve-a xs 0 0))
+  (println "Part B:" (solve-b xs 0 0 0)))
