@@ -1,13 +1,8 @@
-(defn a [coll]
-  (reduce (fn [t [a b]] (+ t (if (< a b) 1 0))) 0
-          (partition 2 1 coll)))
-
-(defn b [coll]
-  (reduce (fn [t [a b]] (+ t (if (< (reduce + a) (reduce + b)) 1 0))) 0
-          (->> coll (partition 3 1) (partition 2 1))))
-
-(def depths
-  (into [] (map #(Integer. %)) (line-seq (java.io.BufferedReader. *in*))))
-
-(println "Part A:" (a depths))
-(println "Part B:" (b depths))
+(let [in (line-seq (java.io.BufferedReader. *in*))
+      xs (sequence (map #(Integer. %)) in)
+      xf (map (fn [[a b]] (if (< a b) 1 0)))
+      pf (map (partial map (partial reduce +)))]
+  (println "Part A:" (transduce xf + (partition 2 1 xs)))
+  (println "Part B:" (transduce (comp pf xf) +
+                                (->> (partition 3 1 xs)
+                                     (partition 2 1)))))
