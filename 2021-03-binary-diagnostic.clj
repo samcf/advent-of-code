@@ -1,25 +1,33 @@
-(defn a [coll]
-  (->> (apply mapv vector coll)
-       (map (fn [x] (reduce (fn [t n] (if (= n \1) (inc t) t)) 0 x)))
-       (map (fn [x] (if (> x (/ (count coll) 2)) [1 0] [0 1])))
-       (apply mapv vector)
-       (map (fn [x] (apply str x)))
-       (map (fn [x] (Integer/parseInt x 2)))
-       (reduce *)))
+(defn transpose [xs]
+  (apply mapv vector xs))
 
-(defn b [coll]
-  (->> (for [[hi lo] [[\1 \0] [\0 \1]]]
-         (loop [xs coll idx 0]
-           (if (seq (rest xs))
-             (let [col (map (fn [x] (nth x idx)) xs)
-                   sum (reduce (fn [t x] (if (= x \1) (inc t) t)) 0 col)
-                   res (if (>= sum (/ (count xs) 2)) hi lo)]
-               (recur (filter (fn [x] (= (get x idx) res)) xs) (inc idx)))
-             (Integer/parseInt (apply str (first xs)) 2))))
-       (reduce *)))
+(defn decimal [xs]
+  (reduce (fn [r x] (+ (* 2 r) x)) 0 xs))
 
-(def reports
-  (into [] (line-seq (java.io.BufferedReader. *in*))))
+(defn majority [xs]
+  (let [fq (frequencies xs)]
+    (if (apply = (vals fq)) 1
+        (ffirst (sort-by val > fq)))))
 
-(println "Part A:" (a reports))
-(println "Part B:" (b reports))
+(defn solve-a
+  ([xs] (solve-a xs identity))
+  ([xs rule-fn]
+   (let [xf (comp (map majority) (map rule-fn))]
+     (->> (transpose xs) (sequence xf) (decimal)))))
+
+(defn solve-b
+  ([xs] (solve-b xs identity))
+  ([xs rule-fn]
+   (loop [xs xs idx 0]
+     (if (> (count xs) 1)
+       (let [mv (rule-fn (majority (nth (transpose xs) idx)))
+             xf (filter (fn [ys] (= (ys idx) mv)))]
+         (recur (sequence xf xs) (inc idx)))
+       (decimal (first xs))))))
+
+(let [in (line-seq (java.io.BufferedReader. *in*))
+      xf (map (partial mapv {\1 1 \0 0}))
+      xs (sequence xf in)
+      rf {1 0 0 1}]
+  (println "Part A:" (* (solve-a xs) (solve-a xs rf)))
+  (println "Part B:" (* (solve-b xs) (solve-b xs rf))))
