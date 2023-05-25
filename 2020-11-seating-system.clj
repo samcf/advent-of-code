@@ -1,44 +1,46 @@
-(def dirs [[1 1] [1 0] [1 -1] [0 1] [0 -1] [-1 1] [-1 0] [-1 -1]])
+(defn to-index [width x y]
+  (+ (* y width) x))
 
-(defn index [cs x y]
-  (+ (* y cs) x))
-
-(defn neighbors [xs cs rs ds sx sy]
-  (for [offv dirs
-        step (range 1 (inc ds))
-        :let [[ox oy] offv]
-        :let [bx (+ sx (* step ox))
+(defn neighbors [board width height distance index]
+  (for [offv [[1 1] [1 0] [1 -1] [0 1] [0 -1] [-1 1] [-1 0] [-1 -1]]
+        step (range 1 (inc distance))
+        :let [[ox oy] offv
+              sx (mod index width)
+              sy (int (/ index width))
+              bx (+ sx (* step ox))
               by (+ sy (* step oy))]
-        :while (and (< -1 bx cs) (< -1 by rs))
+        :while (and (< -1 bx width) (< -1 by height))
         :let [ax (+ sx (* (dec step) ox))
               ay (+ sy (* (dec step) oy))
-              av (xs (index cs ax ay))
-              bv (xs (index cs bx by))]
+              av (board (to-index width ax ay))
+              bv (board (to-index width bx by))
+              sv (board index)]
         :while (or (= step 1) (= av \.))
-        :when  (or (= bv \L) (= bv \#))]
-    bv))
+        :when  (and (or (= sv \L) (= sv \#))
+                    (or (= bv \L) (= bv \#)))]
+    (to-index width bx by)))
 
-(defn step-xf [cs rs ds th xs]
+(defn step-xf [board threshold]
   (comp (map-indexed vector)
-        (map (fn [[ix ch]] [(mod ix cs) (int (/ ix cs)) ch]))
-        (map (fn [[sx sy ch]]
-               (if (= ch \.) ch
-                   (let [adj (neighbors xs cs rs ds sx sy)
-                         frq (frequencies adj)]
-                     (cond (and (= ch \L) (=  (get frq \# 0)  0)) \#
-                           (and (= ch \#) (>= (get frq \# 0) th)) \L
-                           :else ch)))))))
+        (map (fn [[idx adj]]
+               (let [chr (board idx)
+                     frq (frequencies (map board adj))]
+                 (cond (and (= chr \L) (=  (get frq \# 0) 0)) \#
+                       (and (= chr \#) (>= (get frq \# 0) threshold)) \L
+                       :else chr))))))
 
-(defn run [xs xf]
-  (loop [prev xs]
-    (let [next (into [] (xf prev) prev)]
-      (if (= prev next)
-        ((frequencies next) \#)
-        (recur next)))))
+(defn solve [board seats threshold]
+  (loop [prev board]
+    (let [next (into [] (step-xf prev threshold) seats)]
+      (if (not= prev next)
+        (recur next)
+        ((frequencies next) \#)))))
 
-(let [in (line-seq (java.io.BufferedReader. *in*))
-      cs (count (first in))
-      rs (count in)
-      vs (into [] cat in)]
-  (println "Part A:" (run vs (partial step-xf cs rs 1 4)))
-  (println "Part B:" (run vs (partial step-xf cs rs (max cs rs) 5))))
+(let [input (line-seq (java.io.BufferedReader. *in*))
+      width (count (first input))
+      heigt (count input)
+      board (into [] cat input)
+      seats (fn [ds] (sequence (map (fn [ix] (neighbors board width heigt ds ix)))
+                               (range (* width heigt))))]
+  (println "Part A" (solve board (seats 1) 4))
+  (println "Part B" (solve board (seats (max width heigt)) 5)))
