@@ -42,5 +42,5 @@
       board (into [] cat input)
       seats (fn [ds] (sequence (map (fn [ix] (neighbors board width heigt ds ix)))
                                (range (* width heigt))))]
-  (println "Part A" (solve board (seats 1) 4))
-  (println "Part B" (solve board (seats (max width heigt)) 5)))
+  (println "Part A:" (solve board (seats 1) 4))
+  (println "Part B:" (solve board (seats (max width heigt)) 5)))
