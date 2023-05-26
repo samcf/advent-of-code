@@ -32,4 +32,4 @@
       cf (fn [[x y]] (+ (abs x) (abs y)))
       rf (fn [f] (completing f cf))]
   (println "Part A:" (transduce (map parse) (rf solve-a) [0 0  1  0] in))
-  (println "Part A:" (transduce (map parse) (rf solve-b) [0 0 10 -1] in)))
+  (println "Part B:" (transduce (map parse) (rf solve-b) [0 0 10 -1] in)))
