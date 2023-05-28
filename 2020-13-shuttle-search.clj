@@ -1,9 +1,6 @@
-(defn dist-kv [st]
-  (fn [iv]
-    [(- (* (inc (int (/ st iv))) iv) st) iv]))
-
-(let [[st xs] (line-seq (java.io.BufferedReader. *in*))
-      tm (Integer. st)
-      xs (sequence (map (fn [x] (Integer. x))) (re-seq #"\d+" xs))
-      vs (into (sorted-map) (map (dist-kv tm)) xs)]
-  (println "Part A:" (reduce * (first vs))))
+(let [[ts xs] (line-seq (java.io.BufferedReader. *in*))
+      ts (Integer. ts)
+      rm (fn [x] [(- x (mod ts x)) x])
+      xs (sequence (map #(Integer. %)) (re-seq #"\d+" xs))
+      [[rs id] & _] (into (sorted-map) (map rm) xs)]
+  (println "Part A:" (* rs id)))
