@@ -21,12 +21,14 @@
         (conj (follow (conj ts (conj t c))) h)))
     (conj ts h)))
 
-(let [xs (->> (line-seq (java.io.BufferedReader. *in*))
-              (sequence (comp (map parse-ln) cat))
-              (reduce (fn [[[[ax ay] :as h] & t] [ox oy]]
-                        (let [u [(+ ax ox) (+ ay oy)]]
-                          (follow (conj t (conj h u)))))
-                      (repeat 10 (list [0 0])))
-              (into [] (map #(count (distinct %)))))]
+(defn solve
+  ([r] (into [] (map (comp count distinct)) r))
+  ([[[[ax ay] :as h] & t] [ox oy]]
+   (let [u [(+ ax ox) (+ ay oy)]]
+     (follow (conj t (conj h u))))))
+
+(let [in (line-seq (java.io.BufferedReader. *in*))
+      xs (transduce (comp (map parse-ln) cat) solve
+                    (repeat 10 (list [0 0])) in)]
   (println "Part A:" (xs 1))
   (println "Part B:" (xs 9)))
