@@ -1,10 +1,18 @@
 (require '[clojure.string :refer [replace]]
          '[clojure.math.combinatorics :refer [cartesian-product]])
 
+(defn partition-before [pred]
+  (comp (partition-by pred) (partition-all 2) (map (partial apply into))))
+
 (defn parse [s]
   (condp re-find s
     #"mem\[(\d+)\] = (\d+)" :>> (fn [[_ x y]] [(Integer. x) (Integer. y)])
     #"mask = (\w+)"         :>> (fn [[_ x]] x)))
+
+(defn apply-mask [s x]
+  (let [a (Long/parseLong (replace s #"X" "0") 2)
+        b (Long/parseLong (replace s #"[X10]" {"X" "0" "1" "0" "0" "1"}) 2)]
+    (- (bit-or x a) (bit-and x b))))
 
 (defn zip-replace [pred xs ys]
   (loop [xs xs ys ys rs []]
@@ -20,16 +28,12 @@
   (let [xs (get (frequencies mask) \X)
         xf (comp (map (partial zip-replace #{\X} mask))
                  (map (partial apply str)))]
-    (->> (repeat xs [\1 \0])
-         (apply cartesian-product)
-         (sequence xf))))
+    (sequence xf (apply cartesian-product (repeat xs [\1 \0])))))
 
 (defn solve-a
   ([r] (transduce (map val) + r))
   ([r [s & xs]]
-   (let [o (Long/parseLong (replace s #"X" "0") 2)
-         z (Long/parseLong (replace s #"[X10]" {"X" "0" "1" "0" "0" "1"}) 2)
-         f (fn [[_ v]] (- (bit-or v o) (bit-and v z)))]
+   (let [f (fn [[_ x]] (apply-mask s x))]
      (into r (map (juxt first f)) xs))))
 
 (defn solve-b
@@ -37,18 +41,14 @@
   ([r [s & xs]]
    (let [a (Long/parseLong (replace s #"X" "0") 2)
          c (combinations (replace s #"0" "Y"))
-         p (fn [[x t]]
-             (->> (map (fn [s] (replace s #"Y" "X")) c)
-                  (map (fn [s]
-                         (let [o (Long/parseLong (replace s #"X" "0") 2)
-                               z (Long/parseLong (replace s #"[X10]" {"X" "0" "1" "0" "0" "1"}) 2)]
-                           [(bit-or (- (bit-or x o) (bit-and x z)) a) t])))))]
-     (into r (mapcat p) xs))))
+         f (fn [[k x]]
+             (let [xf (comp (map (fn [s] (replace s #"Y" "X")))
+                            (map (fn [s] (bit-or (apply-mask s k) a)))
+                            (map (juxt identity (constantly x))))]
+               (sequence xf c)))]
+     (into r (mapcat f) xs))))
 
 (let [in (line-seq (java.io.BufferedReader. *in*))
-      xf (comp (map parse)
-               (partition-by string?)
-               (partition-all 2)
-               (map (partial apply into)))]
+      xf (comp (map parse) (partition-before string?))]
   (println "Part A:" (transduce xf solve-a {} in))
   (println "Part B:" (transduce xf solve-b {} in)))
