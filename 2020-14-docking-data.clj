@@ -3,29 +3,27 @@
     #"mem\[(\d+)\] = (\d+)" :>> (fn [[_ x y]] [(Integer. x) (Integer. y)])
     #"mask = (\w+)"         :>> (comp seq second)))
 
-(defn mask-a [xs]
-  (fn [v]
-    (loop [xs xs v v]
-      (if (seq xs)
-        (let [[x & xs] xs i (count xs)]
-          (case x
-            \0 (recur xs (bit-clear v i))
-            \1 (recur xs (bit-set   v i))
-            \X (recur xs v))) v))))
+(defn mask-a [xs v]
+  (if (seq xs)
+    (let [[x & xs] xs i (count xs)]
+      (case x
+        \0 (recur xs (bit-clear v i))
+        \1 (recur xs (bit-set   v i))
+        \X (recur xs v))) v))
 
 (defn solve-a
   ([result]
    (transduce (map val) + result))
   ([result [mask & assigns]]
-   (let [xf (map (juxt first (comp (mask-a mask) second)))]
+   (let [xf (map (fn [[k v]] [k (mask-a mask v)]))]
      (into result xf assigns))))
 
 (defn mask-b [xs v]
   (if (seq xs)
     (let [[x & xs] xs i (count xs)]
       (case x
-        \0 (mask-b xs v)
-        \1 (mask-b xs (bit-set v i))
+        \0 (recur xs v)
+        \1 (recur xs (bit-set v i))
         \X (into (mask-b xs (bit-clear v i))
                  (mask-b xs (bit-set   v i))))) [v]))
 
