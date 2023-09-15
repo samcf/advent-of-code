@@ -10,7 +10,7 @@
         (let [[x & xs] xs i (count xs)]
           (case x
             \0 (recur xs (bit-clear v i))
-            \1 (recur xs (bit-set v i))
+            \1 (recur xs (bit-set   v i))
             \X (recur xs v))) v))))
 
 (defn solve-a
@@ -20,23 +20,21 @@
    (let [xf (map (juxt first (comp (mask-a mask) second)))]
      (into result xf assigns))))
 
-(defn mask-b [acc xs v]
+(defn mask-b [xs v]
   (if (seq xs)
     (let [[x & xs] xs i (count xs)]
       (case x
-        \0 (mask-b acc xs v)
-        \1 (mask-b acc xs (bit-set v i))
-        \X (let [a (mask-b acc xs (bit-clear v i))
-                 b (mask-b acc xs (bit-set v i))]
-             (into (into acc a) b))))
-    (conj acc v)))
+        \0 (mask-b xs v)
+        \1 (mask-b xs (bit-set v i))
+        \X (into (mask-b xs (bit-clear v i))
+                 (mask-b xs (bit-set   v i))))) [v]))
 
 (defn solve-b
   ([result]
    (transduce (map val) + result))
   ([result [mask & assigns]]
    (into result
-         (comp (map (fn [[k v]] [(mask-b [] mask k) v]))
+         (comp (map (fn [[k v]] [(mask-b mask k) v]))
                (map (fn [[k v]] (map (fn [k] [k v]) k)))
                cat) assigns)))
 
