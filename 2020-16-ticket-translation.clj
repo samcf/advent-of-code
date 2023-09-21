@@ -39,7 +39,7 @@
       [rules [xs & ys]] (sequence xf in)
       vs (filter (partial every? (valid? rules)) ys)]
   (println "Part A:" (transduce (comp cat (filter (complement (valid? rules)))) + ys))
-  (time (println "Part B:" (transduce (comp (filter (comp (partial re-find #"departure") key)) (map val)) *
-                                      (-> (apply mapv vector vs)
-                                          (fields rules)
-                                          (zipmap xs))))))
+  (println "Part B:" (transduce (comp (filter (comp (partial re-find #"departure") key)) (map val)) *
+                                (-> (apply mapv vector vs)
+                                    (fields rules)
+                                    (zipmap xs)))))
