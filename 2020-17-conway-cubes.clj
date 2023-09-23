@@ -23,10 +23,10 @@
 
 (def neighbors
   (memoize
-   (fn [v]
-     (if (= (count v) 3)
-       (neighbors3 v)
-       (neighbors4 v)))))
+   (fn [from]
+     (if (= (count from) 3)
+       (neighbors3 from)
+       (neighbors4 from)))))
 
 (defn turn [xs [k v]]
   (let [xf (comp (map xs) (filter #{\#}) (take 4))
