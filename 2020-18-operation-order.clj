@@ -12,7 +12,7 @@
           (recur xs (op rs (Integer. (str x))) op))) rs)))
 
 (let [in (line-seq (java.io.BufferedReader. *in*))
-      xs (comp (map (fn [s] (replace s #" " "")))
+      xf (comp (map (fn [s] (replace s #" " "")))
                (map seq)
                (map solve))]
-  (println "Part A:" (transduce xs + in)))
+  (println "Part A:" (transduce xf + in)))
