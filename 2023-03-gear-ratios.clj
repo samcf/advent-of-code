@@ -3,7 +3,7 @@
 (defn invert   [[k v]] (map (fn [i] {i [k]}) v))
 
 (defn neighbors [cs wd]
-  (let [offsets [(- (- wd) 1) (- wd) (+ (- wd) 1) 1 (+ wd 1) wd (- wd 1) -1]]
+  (let [offsets [(dec (- wd)) (- wd) (inc (- wd)) 1 (inc wd) wd (dec wd) -1]]
     (loop [idx 0   ;; current index into the board
            acc []  ;; collection of tuples [x #{idxs}]
            ids #{} ;; indices of parts neighboring the current number
@@ -13,10 +13,11 @@
         (let [val (cs idx)]
           (if (not (numeric? val))
             (recur (inc idx) (if num (conj acc [num ids]) acc) #{} nil)
-            (let [parts (into ids (comp (map (partial + idx)) (filter (comp part? (partial get cs)))) offsets)]
-              (if (= (mod idx wd) (- wd 1))
-                (recur (inc idx) (conj acc [(str num val) parts]) #{} nil)
-                (recur (inc idx) acc parts (str num val)))))) acc))))
+            (let [parts (into ids (comp (map (partial + idx)) (filter (comp part? (partial get cs)))) offsets)
+                  value (str num val)]
+              (if (= (mod idx wd) (dec wd)) ;; far right edge
+                (recur (inc idx) (conj acc [value parts]) #{} nil)
+                (recur (inc idx) acc parts value))))) acc))))
 
 (def part-numbers-xf
   (comp (filter (comp seq second))
