@@ -6,7 +6,7 @@
 (defn rewrite [xs x]
   (let [kv (first (sort-by val > xs))]
     (->> (assoc xs (key kv) (+ (val kv) x))
-         (sequence (mapcat (fn [kv] (repeat (val kv) (key kv)))))
+         (mapcat (fn [kv] (repeat (val kv) (key kv))))
          (apply str))))
 
 (defn kind [hand]
