@@ -6,10 +6,10 @@
 
 (let [in (line-seq (java.io.BufferedReader. *in*))
       xf (fn [re]
-           (comp (map (fn [ln] (re-seq re ln)))
-                 (map (fn [xs] (map (comp dict second) xs)))
+           (comp (map (partial re-seq re))
+                 (map (partial map (comp dict second)))
                  (map (juxt first last))
-                 (map (fn [[a b]] (str a b)))
+                 (map (partial apply str))
                  (map parse-long)))]
   (println "Part A:" (transduce (xf re-parse-a) + in))
   (println "Part B:" (transduce (xf re-parse-b) + in)))

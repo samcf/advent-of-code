@@ -4,7 +4,7 @@
 (defn points [x]
   (int (pow 2 (dec x))))
 
-(defn totals-rf
+(defn scratchcards
   ([xs]   (reduce + xs))
   ([xs x] (conj xs (reduce + 1 (take x xs)))))
 
@@ -17,4 +17,4 @@
                (map (partial apply intersection))
                (map count))]
   (println "Part A:" (transduce (comp xf (map points)) + in))
-  (println "Part B:" (transduce xf totals-rf '() in)))
+  (println "Part B:" (transduce xf scratchcards (list) in)))
