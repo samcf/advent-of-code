@@ -4,18 +4,16 @@
       (recur (+ x a)) x)))
 
 (defn steps [graph ins pred start]
-  (loop [in ins node start steps 0]
+  (loop [ins (cycle ins) node start steps 0]
     (if (not (pred node))
-      (if (seq in)
-        (recur (rest in) (graph [node (first in)]) (inc steps))
-        (recur ins node steps))
+      (recur (rest ins) (graph [node (first ins)]) (inc steps))
       steps)))
 
-(defn create-branch [[x l r]]
+(defn branches [[x l r]]
   [[[x \L] l] [[x \R] r]])
 
 (let [[xs _ & ys] (line-seq (java.io.BufferedReader. *in*))
-      parse (comp (map (partial re-seq #"[A-Z0-9]+")) (mapcat create-branch))
+      parse (comp (map (partial re-seq #"[A-Z0-9]+")) (mapcat branches))
       graph (into {} parse ys)
       steps (partial steps graph xs)
       solve (comp (map key) (map first)
