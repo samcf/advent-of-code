@@ -1,15 +1,15 @@
-(defn converges [a b]
+(defn lcm [a b]
   (loop [x a]
     (if (> (mod x b) 0)
       (recur (+ x a)) x)))
 
 (defn steps [graph ins pred start]
-  (loop [in (seq ins) node start steps 0]
+  (loop [in ins node start steps 0]
     (if (not (pred node))
       (if (seq in)
-        (let [[dir & xs] in]
-          (recur xs (get graph [node dir]) (inc steps)))
-        (recur (seq ins) node steps)) steps)))
+        (recur (rest in) (graph [node (first in)]) (inc steps))
+        (recur ins node steps))
+      steps)))
 
 (defn create-branch [[x l r]]
   [[[x \L] l] [[x \R] r]])
@@ -22,4 +22,4 @@
                   (filter (comp #{\A} last))
                   (map (partial steps (comp #{\Z} last))))]
   (println "Part A:" (steps #{"ZZZ"} "AAA"))
-  (println "Part B:" (transduce solve (completing converges identity) 1 graph)))
+  (println "Part B:" (transduce solve (completing lcm identity) 1 graph)))
