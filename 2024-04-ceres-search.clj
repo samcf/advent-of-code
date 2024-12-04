@@ -8,7 +8,7 @@
 
 (defn matches-a [xs idx offsets]
   (reduce + (for [offset offsets
-                  step steps
+                  step   steps
                   :let   [val (get xs (+ idx (* step offset)))]
                   :while (case step 1 (= val \M) 2 (= val \A) 3 (= val \S))
                   :when  (= step 3)]
