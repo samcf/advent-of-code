@@ -6,9 +6,9 @@
 
 (defn ordered-fn? [rules]
   (fn [xs]
-    (if (seq xs)
+    (if (seq (rest xs))
       (let [[x & xs] xs]
-        (if (every? (rules x #{}) xs)
+        (if (get (rules x) (first xs))
           (recur xs) false)) true)))
 
 (defn compare-fn [rules]
@@ -25,8 +25,8 @@
       rs (into [] parse-xf in)
 
       ;; create a map of rules whose keys are page numbers
-      ;; and who values are sets of pages that must appear
-      ;; after
+      ;; and whose values are sets of pages that must
+      ;; appear after
       ru (reduce (fn [m [x y]] (update m x (fnil conj #{}) y)) {} (first rs))
 
       ;; describe each update list as either ordered or not
