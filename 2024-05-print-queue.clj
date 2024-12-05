@@ -1,10 +1,9 @@
 (defn ordered-fn? [rules]
   (fn [xs]
-    (loop [xs xs after (into #{} (rest xs))]
-      (if (seq xs)
-        (let [[x & xs] xs]
-          (if (every? (rules x #{}) after)
-            (recur xs (disj after (first xs))) false)) true))))
+    (if (seq xs)
+      (let [[x & xs] xs]
+        (if (every? (rules x #{}) xs)
+          (recur xs) false)) true)))
 
 (defn compare-fn [rules]
   (fn [x y]
