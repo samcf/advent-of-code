@@ -13,7 +13,7 @@
 
 (defn compare-fn [rules]
   (fn [x y]
-    (if (get (rules x) y) -1 1)))
+    (contains? (rules x) y)))
 
 (defn mid [xs]
   (nth xs (/ (count xs) 2)))
