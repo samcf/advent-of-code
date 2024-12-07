@@ -1,14 +1,16 @@
 (defn solve-a [t x [y & xs]]
-  (let [a (+ x y) b (* x y)]
-    (if (seq xs)
-      (or (solve-a t a xs) (solve-a t b xs))
-      (or (= t a) (= t b)))))
+  (if (<= x t)
+    (let [a (+ x y) b (* x y)]
+      (if (seq xs)
+        (or (solve-a t a xs) (solve-a t b xs))
+        (or (= t a) (= t b)))) false))
 
 (defn solve-b [t x [y & xs]]
-  (let [a (+ x y) b (* x y) c (parse-long (str x y))]
-    (if (seq xs)
-      (or (solve-b t a xs) (solve-b t b xs) (solve-b t c xs))
-      (or (= t a) (= t b) (= t c)))))
+  (if (<= x t)
+    (let [a (+ x y) b (* x y) c (parse-long (str x y))]
+      (if (seq xs)
+        (or (solve-b t a xs) (solve-b t b xs) (solve-b t c xs))
+        (or (= t a) (= t b) (= t c)))) false))
 
 (let [in (line-seq (java.io.BufferedReader. *in*))
       xf (fn [f]
