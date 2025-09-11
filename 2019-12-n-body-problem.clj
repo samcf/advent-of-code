@@ -40,10 +40,10 @@
 
 (def step (comp position velocity))
 
-(defn simulate [f [xs ys zs] num]
+(defn simulate [[xs ys zs] num]
   (loop [xs xs ys ys zs zs cur 0]
     (if (not= cur num)
-      (recur (f xs) (f ys) (f zs) (inc cur))
+      (recur (step xs) (step ys) (step zs) (inc cur))
       [xs ys zs])))
 
 (defn energy [[xs ys zs]]
@@ -55,9 +55,9 @@
        (* (+ (f (xs a)) (f (ys a)) (f (zs a)))
           (+ (f (xs b)) (f (ys b)) (f (zs b))))))) + moons))
 
-(defn period [f xs]
+(defn period [xs]
   (loop [xs xs i 1]
-    (let [xs (f xs)]
+    (let [xs (step xs)]
       (if (= (subvec xs 4) zero)
         i (recur xs (inc i))))))
 
@@ -67,5 +67,5 @@
       xs (sequence
           (map (fn [xs] (into xs zero)))
           (transpose (sequence xf re)))]
-  (println "Part A:" (energy (simulate step xs 1000)))
-  (println "Part B:" (transduce (map (fn [xs] (period step xs))) lcm 1 xs)))
+  (println "Part A:" (energy (simulate xs 1000)))
+  (println "Part B:" (transduce (map period) lcm 1 xs)))
