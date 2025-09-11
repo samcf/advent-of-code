@@ -18,19 +18,17 @@
       (map (fn [y] [x y]) xs)
       (pairs xs)))))
 
-(def zero [0 0 0 0])
 (def moons (range 4))
 (def duals (pairs (range 4)))
 
-(defn velocity-rf [xs [i j]]
-  (let [a (xs i) b (+ i 4) c (xs j) d (+ j 4)]
-    (cond
-      (= a c) xs
-      (> a c) (assoc xs b (dec (xs b)) d (inc (xs d)))
-      (< a c) (assoc xs b (inc (xs b)) d (dec (xs d))))))
-
 (defn velocity [xs]
-  (reduce velocity-rf xs duals))
+  (reduce
+   (fn [xs [i j]]
+     (let [a (xs i) b (xs j)]
+       (cond
+         (> a b) (update (update xs (+ i 4) dec) (+ j 4) inc)
+         (< a b) (update (update xs (+ i 4) inc) (+ j 4) dec)
+         (= a b) xs))) xs duals))
 
 (defn position [xs]
   (assoc
@@ -56,16 +54,17 @@
           (+ (f (xs b)) (f (ys b)) (f (zs b))))))) + moons))
 
 (defn period [xs]
-  (loop [xs xs i 1]
+  (loop [xs xs cur 1]
     (let [xs (step xs)]
-      (if (= (subvec xs 4) zero)
-        i (recur xs (inc i))))))
+      (if (not= 0 (xs 4) (xs 5) (xs 6) (xs 7))
+        (recur xs (inc cur)) cur))))
 
 (let [in (line-seq (java.io.BufferedReader. *in*))
       re (re-seq #"-?\d+" (apply str in))
       xf (comp (map parse-long) (partition-all 3))
-      xs (sequence
-          (map (fn [xs] (into xs zero)))
-          (transpose (sequence xf re)))]
+      xs (transpose
+          (concat
+           (sequence xf re)
+           (repeat 4 (repeat 4 0))))]
   (println "Part A:" (energy (simulate xs 1000)))
   (println "Part B:" (transduce (map period) lcm 1 xs)))
