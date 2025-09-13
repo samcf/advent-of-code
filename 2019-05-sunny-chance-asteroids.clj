@@ -2,8 +2,9 @@
          '[intcode :refer [intcode]])
 
 (defn run [xs id]
-  (let [[_ dst out] (intcode xs id)]
+  (let [[src dst out] (intcode xs)]
     (async/close! dst)
+    (async/>!! src id)
     (async/<!! out)))
 
 (let [in (first (line-seq (java.io.BufferedReader. *in*)))

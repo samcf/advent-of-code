@@ -8,8 +8,7 @@
 (defn move [[ax ay] [bx by]]
   [(+ ax bx) (+ ay by)])
 
-(defn color [x]
-  (if (= x 0) \░ \█))
+(def color [\░ \█])
 
 (defn length [f xs]
   (range (inc (transduce (map (comp f key)) max 0 xs))))
@@ -35,5 +34,5 @@
     (doseq [y (length (fn [[_ y]] y) rs)]
       (println
        (transduce
-        (comp (map (fn [x] (rs [x y]))) (map color)) str
+        (comp (map (fn [x] (get rs [x y] 0))) (map color)) str
         (length (fn [[x _]] x) rs))))))

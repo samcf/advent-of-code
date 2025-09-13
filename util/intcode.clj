@@ -8,7 +8,7 @@
     (if (> x 0) (recur (quot x 10) (conj rs (mod x 10)))
         rs)))
 
-(defn ^:export intcode [xs & init]
+(defn ^:export intcode [xs]
   (let [xs (transient xs)
         <- (fn [idx mode base]
              (case mode
@@ -21,7 +21,6 @@
                2 (+ (get xs idx 0) base)))
         src (async/chan)
         dst (async/chan)]
-    (async/onto-chan!! src init false)
     (->> (async/go-loop [xs xs idx 0 off 0 out nil]
            (let [instr (xs idx)
                  [g f e _ opcode] (fill (split instr) 5)
