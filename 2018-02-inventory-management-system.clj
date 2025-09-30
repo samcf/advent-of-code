@@ -6,8 +6,8 @@
   ([m] (* (:a m) (:b m)))
   ([m s]
    (cond-> m
-     (some #{2} s) (update :a inc)
-     (some #{3} s) (update :b inc))))
+     (s 2) (update :a inc)
+     (s 3) (update :b inc))))
 
 (defn diff [a b]
   (loop [idx 0 pos nil]
