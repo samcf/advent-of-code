@@ -20,21 +20,13 @@
                (update rs id (fn [m] (apply merge-with + m ms)))))
           (recur xs ev pv rs))) rs)))
 
-(defn sum [xs] (reduce +   xs))
-(defn zen [xs] (reduce max xs))
-(defn top [xs] (key (first (sort-by val > xs))))
-
-(defn strategy-a [rs]
-  (let [x (top (update-vals rs (comp sum vals)))
-        y (top (rs x))]
-    (* x y)))
-
-(defn strategy-b [rs]
-  (let [x (top (update-vals rs (comp zen vals)))
+(defn strategy [rs f]
+  (let [f (comp (partial reduce f) vals)
+        x (key (apply max-key val (update-vals rs f)))
         y (key (apply max-key val (rs x)))]
     (* x y)))
 
 (let [in (line-seq (java.io.BufferedReader. *in*))
-      xs (expand (sort order (into [] parse in)))]
-  (println "Part A:" (strategy-a xs))
-  (println "Part B:" (strategy-b xs)))
+      rs (expand (sort order (into [] parse in)))]
+  (println "Part A:" (strategy rs +))
+  (println "Part B:" (strategy rs max)))
