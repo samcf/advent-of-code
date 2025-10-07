@@ -2,7 +2,8 @@
          '[intcode :refer [intcode]])
 
 (defn run [xs mode]
-  (let [[_ dst out] (intcode xs mode)]
+  (let [[src dst out] (intcode xs)]
+    (async/>! src mode)
     (async/close! dst)
     (async/<!! out)))
 
