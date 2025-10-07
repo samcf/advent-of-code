@@ -3,8 +3,8 @@
    (sorted-set)
    (comp (filter (comp not seq val)) (map key)) xs))
 
-(defn prune [xs & kvs]
-  (update-vals xs (fn [deps] (apply disj deps kvs))))
+(defn prune [xs & steps]
+  (update-vals xs (fn [deps] (apply disj deps steps))))
 
 (defn path [xs]
   (loop [xs xs steps []]
@@ -17,7 +17,7 @@
     (if (or (seq xs) (seq wk))
       (let [dn (reduce
                 (fn [r [k v]]
-                  (if (= (+ (- k 64) t v) time)
+                  (if (= (+ -64 k t v) time)
                     (conj r k) r)) (list) wk)
             xs (apply prune xs dn)
             wk (apply dissoc wk dn)
