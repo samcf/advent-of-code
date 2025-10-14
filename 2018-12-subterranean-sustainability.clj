@@ -13,28 +13,24 @@
    (filter (comp #{\#} second))
    (map first)))
 
-(defn offset [idx]
+(defn nearby [idx]
   (into
    (list)
    (map (fn [off] (+ idx off)))
    (list 2 1 0 -1 -2)))
 
 (defn relevant [xs]
-  (into (hash-set) (mapcat offset) xs))
+  (into (hash-set) (mapcat nearby) xs))
 
-(defn step [rs]
+(defn advance [rs]
   (fn [xs]
     (let [f (fn [idx] (if (xs idx) \# \.))]
       (into
        (hash-set)
-       (comp
-        (map (juxt identity offset))
-        (map (juxt first (comp (partial map f) second)))
-        (filter (comp rs second))
-        (map first))
+       (filter (comp rs (partial map f) nearby))
        (relevant xs)))))
 
-(defn solve [xs f t]
+(defn solve [f xs t]
   (loop [xs xs x 0 a ##Inf b 0 c 0 d 0]
     (if (= (- a b) (- b c) (- c d))
       (+ (* (- t x) (- a b)) a)
@@ -43,6 +39,6 @@
 
 (let [[in _ & rs] (line-seq (java.io.BufferedReader. *in*))
       xs (into (hash-set) init-xf in)
-      xf (step (into (hash-set) rules-xf rs))]
+      xf (advance (into (hash-set) rules-xf rs))]
   (println "Part A:" (reduce + (nth (iterate xf xs) 20)))
-  (println "Part B:" (solve xs xf 5e10)))
+  (println "Part B:" (solve xf xs 5e10)))
