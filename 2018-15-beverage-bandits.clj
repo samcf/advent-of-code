@@ -18,14 +18,14 @@
    {:walls (hash-set)
     :units (sorted-map-by reading-cmp)} xs))
 
-(defn finished? [xs]
+(defn game-over? [units]
   (reduce
    (fn [a b]
      (if (not= (:type (val a)) (:type (val b)))
-       (reduced false) b)) xs))
+       (reduced false) b)) units))
 
-(defn elves [xs]
-  (count (filter (comp #{\E} :type val) xs)))
+(defn elves [units]
+  (count (filter (comp #{\E} :type val) units)))
 
 (defn path [walls src dst]
   (loop [queue (conj queue [src]) vstd (hash-set) paths []]
@@ -33,7 +33,7 @@
       (let [path (peek queue) next (peek path) rest (pop queue)]
         (cond
           (and (seq paths) (> (count path) (count (peek paths))))
-          (recur rest vstd paths)
+          paths
           (vstd next)
           (recur rest vstd paths)
           (dst next)
@@ -88,7 +88,7 @@
   (reduce
    (fn [units src]
      (if-let [char (units src)]
-       (if (finished? units)
+       (if (game-over? units)
          (reduced units)
          (let [dst (move walls units src)]
            (if (= src dst)
@@ -96,26 +96,26 @@
              (attack (assoc (dissoc units src) dst char) dst))))
        units)) units (keys units)))
 
-(defn update-atk [xs ap]
+(defn update-atk [units atk]
   (reduce
-   (fn [xs [k v]]
+   (fn [rs [k v]]
      (if (= (:type v) \E)
-       (update xs k assoc :atk ap) xs)) xs xs))
+       (update rs k assoc :atk atk) rs)) units units))
 
 (defn play [walls units]
-  (loop [xs units rnd 0]
-    (if (finished? xs)
-      (* (dec rnd) (transduce (map (comp :hp val)) + xs))
-      (recur (round walls xs) (inc rnd)))))
+  (loop [units units rnd 0]
+    (if (game-over? units)
+      (* (dec rnd) (transduce (map (comp :hp val)) + units))
+      (recur (round walls units) (inc rnd)))))
 
 (defn cheat [walls units]
   (let [initial (elves units)]
-    (loop [xs units rnd 0 ap 4]
-      (if (finished? xs)
-        (if (= (elves xs) initial)
-          (* (dec rnd) (transduce (map (comp :hp val)) + xs))
-          (recur units 0 (inc ap)))
-        (recur (round walls (update-atk xs ap)) (inc rnd) ap)))))
+    (loop [rs units rnd 0 atk 4]
+      (if (game-over? rs)
+        (if (= (elves rs) initial)
+          (* (dec rnd) (transduce (map (comp :hp val)) + rs))
+          (recur units 0 (inc atk)))
+        (recur (round walls (update-atk rs atk)) (inc rnd) atk)))))
 
 (let [in (line-seq (java.io.BufferedReader. *in*))
       xs (into [] cat in)
