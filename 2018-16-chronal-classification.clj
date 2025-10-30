@@ -49,11 +49,10 @@
         rs))))
 
 (defn run [ins dict]
-  (let [re [0 0 0 0]]
-    (reduce
-     (fn [mem ins]
-       (let [f (instructions (dict (ins 0)))]
-         (execute mem ins f))) re ins)))
+  (reduce
+   (fn [mem ins]
+     (let [f (instructions (dict (ins 0)))]
+       (execute mem ins f))) [0 0 0 0] ins))
 
 (let [in (line-seq (java.io.BufferedReader. *in*))
       xf (comp
