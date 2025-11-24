@@ -1,5 +1,3 @@
-(def start {:q 0 :r 0 :s 0})
-
 (def dirs
   {"n"  {:q 0 :r -1 :s 1}
    "ne" {:q 1 :r -1 :s 0}
@@ -16,14 +14,8 @@
 (defn distance [a]
   (quot (+ (abs (:q a)) (abs (:r a)) (abs (:s a))) 2))
 
-(defn farthest
-  ([] {:p start :d 0})
-  ([rs] (:d rs))
-  ([rs c]
-   (let [p (add (:p rs) c)]
-     (update (assoc rs :p p) :d max (distance p)))))
-
 (let [in (first (line-seq (java.io.BufferedReader. *in*)))
-      xs (re-seq #"\w+" in)]
-  (println "Part A:" (transduce (map dirs) (completing add distance) start xs))
-  (println "Part B:" (transduce (map dirs) farthest xs)))
+      xs (into [] (map dirs) (re-seq #"\w+" in))
+      rs (into [] (map distance) (reductions add {:q 0 :r 0 :s 0} xs))]
+  (println "Part A:" (peek rs))
+  (println "Part B:" (reduce max rs)))
