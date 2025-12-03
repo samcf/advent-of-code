@@ -5,13 +5,13 @@
        (if (> v b) [k v] r))) [0 0] xs))
 
 (defn joltage [xs n]
-  (loop [idx 0 res []]
-    (if (= (count res) n)
-      (reduce (fn [x d] (+ (* x 10) d)) 0 res)
-      (let [xs (subvec xs idx (+ (- (count xs) n) (count res) 1))
-            kv (max-kv xs)]
-        (recur (+ idx (inc (first kv)))
-               (conj res (second kv)))))))
+  (loop [idx 0 res 0 rem n]
+    (if (zero? rem) res
+        (let [[k v] (max-kv (subvec xs idx (inc (- (count xs) rem))))]
+          (recur
+           (+ idx (inc k))
+           (+ (* res 10) v)
+           (dec rem))))))
 
 (let [in (line-seq (java.io.BufferedReader. *in*))
       xf (fn [n]
