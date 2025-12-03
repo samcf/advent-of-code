@@ -1,17 +1,13 @@
 (defn max-kv [xs]
   (reduce-kv
    (fn [r k v]
-     (let [[_ b] r]
-       (if (> v b) [k v] r))) [0 0] xs))
+     (if (> v (r 1)) [k v] r)) [0 0] xs))
 
 (defn joltage [xs n]
   (loop [idx 0 res 0 rem n]
     (if (zero? rem) res
         (let [[k v] (max-kv (subvec xs idx (inc (- (count xs) rem))))]
-          (recur
-           (+ idx (inc k))
-           (+ (* res 10) v)
-           (dec rem))))))
+          (recur (+ idx (inc k)) (+ (* res 10) v) (dec rem))))))
 
 (let [in (line-seq (java.io.BufferedReader. *in*))
       xf (fn [n]
