@@ -6,7 +6,7 @@
        \^ (update m :splitters conj k) m))
    {:start 0 :splitters (sorted-set-by >)} in))
 
-(defn classical [idxs len idx]
+(defn classic [idxs len idx]
   (let [last (first idxs)]
     (loop [next (conj clojure.lang.PersistentQueue/EMPTY idx)
            vstd (hash-set)]
@@ -30,5 +30,5 @@
 (let [in (line-seq (java.io.BufferedReader. *in*))
       ln (count (first in))
       rs (parse (into [] (comp (take-nth 2) cat) in))]
-  (println "Part A:" (classical (:splitters rs) ln (:start rs)))
-  (println "Part B:" (quantum   (:splitters rs) ln (:start rs))))
+  (println "Part A:" (classic (:splitters rs) ln (:start rs)))
+  (println "Part B:" (quantum (:splitters rs) ln (:start rs))))
