@@ -1,35 +1,30 @@
 (defn tls? [xs]
-  (loop [idx 0 ex? false in? false hype? false]
-    (cond
-      (>= (+ idx 3) (count xs)) (and ex? (not in?))
-      (= (xs idx) \[) (recur (inc idx) ex? in? true)
-      (= (xs idx) \]) (recur (inc idx) ex? in? false)
-      :else
-      (let [a (xs idx) b (xs (+ idx 1)) c (xs (+ idx 2)) d (xs (+ idx 3))]
-        (if (and (= a d) (= b c) (not= a b))
-          (if hype?
-            (recur (+ idx 4) ex? true hype?)
-            (recur (+ idx 4) true in? hype?))
-          (recur (inc idx) ex? in? hype?))))))
+  (loop [idx 0 ext false hyp false a nil b nil c nil]
+    (if (< idx (count xs))
+      (let [d (xs idx) match (and (= a d) (= b c) (not= a b))]
+        (cond
+          (= d \[) (recur (inc idx) ext true nil nil nil)
+          (= d \]) (recur (inc idx) ext false nil nil nil)
+          (and match hyp) false
+          match (recur (inc idx) true hyp b c d)
+          :else (recur (inc idx) ext hyp b c d)))
+      ext)))
 
 (defn ssl? [xs]
-  (loop [idx 0 ex (list) in (list) hype false]
-    (cond
-      (>= (+ idx 2) (count xs))
+  (loop [idx 0 ext (list) int (list) hyp false a nil b nil]
+    (if (< idx (count xs))
+      (let [c (xs idx) match (and (= a c) (not= a b))]
+        (cond
+          (= c \[) (recur (inc idx) ext int true nil nil)
+          (= c \]) (recur (inc idx) ext int false nil nil)
+          (and match hyp) (recur (inc idx) ext (conj int [a b c]) hyp b c)
+          match (recur (inc idx) (conj ext [a b c]) int hyp b c)
+          :else (recur (inc idx) ext int hyp b c)))
       (some
        (fn [[a b c]]
          (some
           (fn [[d e f]]
-            (and (= a e c) (= b d f))) ex)) in)
-      (= (xs idx) \[) (recur (inc idx) ex in true)
-      (= (xs idx) \]) (recur (inc idx) ex in false)
-      :else
-      (let [a (xs idx) b (xs (+ idx 1)) c (xs (+ idx 2))]
-        (if (and (= a c) (not= a b))
-          (if hype
-            (recur (inc idx) ex (conj in [a b c]) hype)
-            (recur (inc idx) (conj ex [a b c]) in hype))
-          (recur (inc idx) ex in hype))))))
+            (and (= a e c) (= b d f))) ext)) int))))
 
 (defn counting [pred]
   (keep (fn [x] (when (pred x) 1))))
