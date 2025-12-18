@@ -1,14 +1,17 @@
-(defn decompress [xs src dst len-fn]
-  (loop [idx src enc nil sum 0]
-    (cond
-      (= idx dst) sum
-      (= (xs idx) \() (recur (inc idx) "" sum)
-      (= (xs idx) \))
-      (let [[len mul] (map parse-long (re-seq #"\d+" enc))]
-        (recur (+ idx (inc len)) nil (+ (* (len-fn xs idx len) mul) sum)))
-      (string? enc) (recur (inc idx) (str enc (xs idx)) sum)
-      :else
-      (recur (inc idx) enc (inc sum)))))
+(defn join [x c]
+  (+ (* x 10) (- (int c) 48)))
+
+(defn decompress [xs src dst sum-fn]
+  (loop [idx src len nil mul nil sum 0]
+    (if (= idx dst) sum
+        (let [val (xs idx)]
+          (cond
+            (= val \() (recur (inc idx) 0 mul sum)
+            (= val \)) (recur (+ idx (inc len)) nil nil (+ (* (sum-fn xs idx len) mul) sum))
+            (= val \x) (recur (inc idx) len 0 sum)
+            mul        (recur (inc idx) len (join mul val) sum)
+            len        (recur (inc idx) (join len val) mul sum)
+            :else      (recur (inc idx) len mul (inc sum)))))))
 
 (defn recursive [xs idx len]
   (decompress xs (inc idx) (+ (inc idx) len) recursive))
