@@ -1,14 +1,14 @@
 (def queue clojure.lang.PersistentQueue/EMPTY)
 (def dirs [[0 -1] [1 0] [0 1] [-1 0]])
 
-(defn space? [[x y] z]
-  (and (not (or (neg? x) (neg? y)))
-       (even?
-        (Long/bitCount
-         (+ (* x x) (* 3 x) (* 2 x y) (* y y) y z)))))
-
 (defn add [[ax ay] [bx by]]
   [(+ ax bx) (+ ay by)])
+
+(defn space? [[x y] z]
+  (and (>= x 0) (>= y 0)
+       (->> (+ (* x x) (* 3 x) (* 2 x y) (* y y) y z)
+            (Long/bitCount)
+            (even?))))
 
 (defn minimum-steps [xf src dst]
   (loop [queue (conj queue [src]) visit (hash-set)]
