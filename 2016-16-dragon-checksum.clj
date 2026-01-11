@@ -13,9 +13,9 @@
   (into (conj xs 0) (map {0 1 1 0}) (rseq xs)))
 
 (defn solve [xs t]
-  (if (>= (count xs) t)
-    (checksum (subvec xs 0 t))
-    (recur (step xs) t)))
+  (if (< (count xs) t)
+    (recur (step xs) t)
+    (checksum (subvec xs 0 t))))
 
 (let [in (line-seq (java.io.BufferedReader. *in*))
       xs (into [] (map (comp parse-long str)) (first in))]
