@@ -41,18 +41,16 @@
     (let [curr (peek queue)]
       (if (= (peek curr) [3 3])
         (path curr)
-        (if-let [xs (neighbors (encode (str seed (path curr))))]
-          (recur (into (pop queue) (advance curr) xs))
-          (recur (pop queue)))))))
+        (let [xs (neighbors (encode (str seed (path curr))))]
+          (recur (into (pop queue) (advance curr) xs)))))))
 
 (defn longest-path [seed]
   (loop [queue (conj queue [[0 0]]) prev 0]
     (if-let [curr (peek queue)]
       (if (= (peek curr) [3 3])
         (recur (pop queue) curr)
-        (if-let [xs (neighbors (encode (str seed (path curr))))]
-          (recur (into (pop queue) (advance curr) xs) prev)
-          (recur (pop queue) prev)))
+        (let [xs (neighbors (encode (str seed (path curr))))]
+          (recur (into (pop queue) (advance curr) xs) prev)))
       (count (path prev)))))
 
 (let [in (first (line-seq (java.io.BufferedReader. *in*)))]
